@@ -6,7 +6,7 @@ import scala.io.Source
  * Project: puma
  * Package: org.puma.main
  *
- * User: sergioalvarez
+ * User: Sergio Álvarez
  * Date: 09/2013
  */
 object Main {
