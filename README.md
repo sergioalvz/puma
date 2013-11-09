@@ -7,4 +7,4 @@ This project is part of the Sergio Álvarez's Master Thesis for content-based tw
 
 Other related modules:
 
-+ [falcon]{https://github.com/sergio-alvarez/falcon}
++ [falcon](https://github.com/sergio-alvarez/falcon)
