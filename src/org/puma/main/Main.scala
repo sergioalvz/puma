@@ -19,18 +19,18 @@ object Main {
     }
   }
 
-  def run(path: String) {
+  private[this] def run(path: String) {
     println("==============================================")
     println("                    puma                      ")
     println("==============================================")
     println()
-    try {
+    try{
       val analyzer = new Analyzer(path)
       println("File to analyze: " + path)
       println()
-      println("Number of tweets to analyze: " + analyzer.numberOfTweets)
-    } catch {
-      case ex: FileNotFoundException => Console.err.println("ERROR: The file " + path +" does not exist. Please, check if " +
+      analyzer.analyze()
+    }catch {
+      case ex: FileNotFoundException => Console.err.println("ERROR: The file " + path + " does not exist. Please, check if " +
         "the path provided is valid.")
     }
   }
