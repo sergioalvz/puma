@@ -7,16 +7,6 @@ import scala.xml.pull.EvText
 import com.twitter.Extractor
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import java.io.{Reader, StringReader}
-import org.apache.lucene.analysis.core.SimpleAnalyzer
-import org.apache.lucene.util.Version
-import org.apache.lucene.analysis.es.SpanishAnalyzer
-import org.apache.lucene.analysis.shingle.ShingleAnalyzerWrapper
-import org.apache.lucene.analysis.TokenStream
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-import java.util.StringTokenizer
-import org.apache.lucene.analysis.standard.StandardAnalyzer
-import scala.reflect.internal.util.StringOps
 
 /**
  * Project: puma
