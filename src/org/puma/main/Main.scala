@@ -28,7 +28,28 @@ object Main {
       val analyzer = new Analyzer(path)
       println("File to analyze: " + path)
       println()
-      analyzer.analyze()
+      println("########################")
+      println("  Mentions detected: ")
+      println("########################")
+      val mentions = analyzer.mentions
+      for(mention <- mentions.keySet){
+        println("@" + mention + ": " + mentions(mention))
+      }
+
+      println()
+      println("########################")
+      println("  Hashtags detected: ")
+      println("########################")
+      val hashtags = analyzer.hashtags
+      for(hashtag <- hashtags.keySet){
+        println("#" + hashtag + ": " + hashtags(hashtag))
+      }
+
+      println()
+      println("########################")
+      println("  Bigrams detected: ")
+      println("########################")
+      analyzer.bigrams
     }catch {
       case ex: FileNotFoundException => Console.err.println("ERROR: The file " + path + " does not exist. Please, check if " +
         "the path provided is valid.")
