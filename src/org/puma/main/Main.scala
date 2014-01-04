@@ -1,6 +1,6 @@
 package org.puma.main
 
-import org.puma.analyzer.Analyzer
+import org.puma.analyzer.Extractor
 import java.io.FileNotFoundException
 
 /**
@@ -11,48 +11,26 @@ import java.io.FileNotFoundException
  * Date: 09/2013
  */
 object Main {
+
+  private[this] val files = Array("prueba.xml")
+
   def main(args: Array[String]): Unit = {
-    if (!(args.length > 0)) {
-      Console.err.println("ERROR: The file to analyze must be passed as first argument.")
-    } else {
-      run(args(0))
-    }
+      run()
   }
 
-  private[this] def run(path: String) {
+  private[this] def run() {
     println("==============================================")
     println("                    puma                      ")
     println("==============================================")
     println()
-    try{
-      val analyzer = new Analyzer(path)
-      println("File to analyze: " + path)
-      println()
-      println("########################")
-      println("  Mentions detected: ")
-      println("########################")
-      val mentions = analyzer.mentions
-      for(mention <- mentions.keySet){
-        println("@" + mention + ": " + mentions(mention))
-      }
 
-      println()
-      println("########################")
-      println("  Hashtags detected: ")
-      println("########################")
-      val hashtags = analyzer.hashtags
-      for(hashtag <- hashtags.keySet){
-        println("#" + hashtag + ": " + hashtags(hashtag))
+    val extractor = new Extractor()
+    for(path <- files){
+      try{
+      }catch {
+        case ex: FileNotFoundException => Console.err.println("ERROR: The file " + path + " does not exist. Please, check if " +
+          "the path provided is valid.")
       }
-
-      println()
-      println("########################")
-      println("  Bigrams detected: ")
-      println("########################")
-      analyzer.bigrams
-    }catch {
-      case ex: FileNotFoundException => Console.err.println("ERROR: The file " + path + " does not exist. Please, check if " +
-        "the path provided is valid.")
     }
   }
 }
