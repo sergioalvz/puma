@@ -16,32 +16,27 @@ import org.puma.model.Term
  * Author: Sergio Álvarez
  * Date: 09/2013
  */
-class Extractor() {
+object Extractor {
   private[this] val extractor = new com.twitter.Extractor()
-  private[this] var _path: String = _
-
   private[this] val SymbolsToClean = Array("\\", ",", "(", "\'", ")", "{", "}", "?", "¿", "¡", "!", ".", "&", "%",
     "$", ";", ":", "+", "-", "*", "^", "/", "_", "\n", "\t")
 
   /* ========================================================
                       PUBLIC METHODS
      ======================================================== */
-  def path = _path
-  def path_= (value:String):Unit = _path = value
-
-  def mentions: mutable.Map[Term, Int] = {
+  def mentions(path: String): Map[Term, Int] = {
     def get(tweet: String): List[Term] =
       toListOfExtractedResult(extractor.extractMentionedScreennames(tweet))
-    extract(get)
+    extract(path, get)
   }
 
-  def hashtags: mutable.Map[Term, Int] = {
+  def hashtags(path: String): Map[Term, Int] = {
     def get(tweet: String): List[Term] =
       toListOfExtractedResult(extractor.extractHashtags(tweet))
-    extract(get)
+    extract(path, get)
   }
 
-  def bigrams: mutable.Map[Term, Int] = {
+  def bigrams(path: String): Map[Term, Int] = {
     def get(tweet: String): List[Term] = {
       val bigrams = new ListBuffer[Term]
 
@@ -54,7 +49,7 @@ class Extractor() {
       bigrams.toList
     }
 
-    extract(get)
+    extract(path, get)
   }
 
   /* ========================================================
@@ -93,7 +88,7 @@ class Extractor() {
     helper(sent.split(' ').toList)
   }
 
-  private[this] def extract(get: (String) => List[Term]) = {
+  private[this] def extract(path: String, get: (String) => List[Term]): Map[Term, Int] = {
     val results = mutable.Map.empty[Term, Int]
 
     val reader = new XMLEventReader(Source.fromFile(path))
@@ -114,6 +109,6 @@ class Extractor() {
       }
     }
 
-    results
+    results.toMap
   }
 }

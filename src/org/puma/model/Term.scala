@@ -18,5 +18,7 @@ class Term(t: List[String]) {
     }
   }
 
+  override def hashCode: Int = this.terms.hashCode()
+
   override def toString = terms.mkString(" ")
 }

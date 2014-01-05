@@ -1,7 +1,8 @@
 package org.puma.main
 
-import org.puma.analyzer.Extractor
+import org.puma.analyzer.Analyzer
 import java.io.FileNotFoundException
+import org.puma.configuration.ConfigurationUtil
 
 /**
  * Project: puma
@@ -11,9 +12,6 @@ import java.io.FileNotFoundException
  * Date: 09/2013
  */
 object Main {
-
-  private[this] val files = Array("prueba.xml")
-
   def main(args: Array[String]): Unit = {
       run()
   }
@@ -24,13 +22,14 @@ object Main {
     println("==============================================")
     println()
 
-    val extractor = new Extractor()
-    for(path <- files){
+    val files = ConfigurationUtil.getFilesToAnalyze
+    if(files.size == 2) {
       try{
+        val mostValuedTerms = Analyzer.analyze(files(0), files(1))
+        println(mostValuedTerms.mkString("\n"))
       }catch {
-        case ex: FileNotFoundException => Console.err.println("ERROR: The file " + path + " does not exist. Please, check if " +
-          "the path provided is valid.")
+        case ex: FileNotFoundException => Console.err.println("ERROR: The file does not exist. " + ex.getMessage)
       }
-    }
+     }
   }
 }
