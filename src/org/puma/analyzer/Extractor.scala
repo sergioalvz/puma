@@ -78,6 +78,11 @@ object Extractor {
     replaced
   }
 
+  /*
+   * =========================================================
+   *   Extracted from: https://gist.github.com/beala/3254234
+   * =========================================================
+   */
   private[this] def ngram(sent: String, n: Int): List[List[String]] = {
     def helper(sent: List[String]): List[List[String]] = {
       sent match {
