@@ -26,7 +26,9 @@ object Main {
     if(files.size == 2) {
       try{
         val mostValuedTerms = Analyzer.analyze(files(0), files(1))
-        println(mostValuedTerms.mkString("\n"))
+        mostValuedTerms.keys.foreach(term => {
+          if(mostValuedTerms.get(term).get < 0.0) println(term + " -> " + mostValuedTerms.get(term).get)
+        })
       }catch {
         case ex: FileNotFoundException => Console.err.println("ERROR: The file does not exist. " + ex.getMessage)
       }

@@ -3,6 +3,7 @@ package org.puma.analyzer
 import scala.collection.mutable
 import org.apache.commons.math3.stat.inference.GTest
 import org.puma.model.Term
+import org.puma.analyzer.filter.{MentionFilter, TermExtractorFilter, HashtagFilter}
 
 /**
  * Project: puma
@@ -16,8 +17,8 @@ object Analyzer {
     val results = mutable.Map.empty[Term, Double]
     val stats = new GTest()
 
-    val localHashtags = Extractor.hashtags(local)
-    val globalHashtags = Extractor.hashtags(global)
+    val localHashtags = Extractor.extract(local, new HashtagFilter(new MentionFilter(new TermExtractorFilter())))
+    val globalHashtags = Extractor.extract(global, new HashtagFilter(new MentionFilter(new TermExtractorFilter())))
 
     val notDefinedAtGlobal = mutable.Map.empty[Term, Int]
 
