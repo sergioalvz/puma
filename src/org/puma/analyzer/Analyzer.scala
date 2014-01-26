@@ -3,7 +3,7 @@ package org.puma.analyzer
 import scala.collection.mutable
 import org.apache.commons.math3.stat.inference.GTest
 import org.puma.model.Term
-import org.puma.analyzer.filter.{MentionFilter, TermExtractorFilter, HashtagFilter}
+import org.puma.analyzer.filter.{MentionFilter, SimpleTermExtractorFilter, HashtagFilter}
 
 /**
  * Project: puma
@@ -17,33 +17,39 @@ object Analyzer {
     val results = mutable.Map.empty[Term, Double]
     val stats = new GTest()
 
-    val localHashtags = Extractor.extract(local, new HashtagFilter(new MentionFilter(new TermExtractorFilter())))
-    val globalHashtags = Extractor.extract(global, new HashtagFilter(new MentionFilter(new TermExtractorFilter())))
+    val extractor = new Extractor()
+    
+    extractor.filter = new HashtagFilter(new MentionFilter(new SimpleTermExtractorFilter()))
+    extractor.path = local
+    val localTerms = extractor.extract
+    
+    extractor.path = global
+    val globalTerms = extractor.extract
 
     val notDefinedAtGlobal = mutable.Map.empty[Term, Int]
 
-    localHashtags.keys.foreach(term => {
-      val globalCountOption = globalHashtags.get(term)
+    localTerms.keys.foreach(term => {
+      val globalCountOption = globalTerms.get(term)
       if(globalCountOption.isDefined) {
-        val observed = Int.int2long(localHashtags.get(term).get)
+        val observed = Int.int2long(localTerms.get(term).get)
         val expected = Int.int2long(globalCountOption.get)
         val llr = stats.gDataSetsComparison(Array(observed, observed), Array(expected, expected))
         results.put(term, llr)
       }else {
-        notDefinedAtGlobal.put(term, localHashtags.get(term).get)
+        notDefinedAtGlobal.put(term, localTerms.get(term).get)
       }
     })
 
     if(!notDefinedAtGlobal.isEmpty) {
       notDefinedAtGlobal.keys.foreach(term => {
-        val termsWithSameFrequency = localHashtags.keys.filter((localTerm) => {
-          globalHashtags.get(localTerm).isDefined && localHashtags.get(localTerm).get == notDefinedAtGlobal.get(term).get
+        val termsWithSameFrequency = localTerms.keys.filter((localTerm) => {
+          globalTerms.get(localTerm).isDefined && localTerms.get(localTerm).get == notDefinedAtGlobal.get(term).get
         })
 
         if(termsWithSameFrequency.size > 0){
           var avg = 0
           termsWithSameFrequency.foreach(term => {
-            avg += globalHashtags.get(term).get
+            avg += globalTerms.get(term).get
           })
           avg /= termsWithSameFrequency.size
 

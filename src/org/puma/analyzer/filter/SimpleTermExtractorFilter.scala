@@ -9,7 +9,7 @@ import org.puma.model.Term
  * Author: Sergio Álvarez
  * Date: 01/2014
  */
-class TermExtractorFilter extends ExtractorFilter{
+class SimpleTermExtractorFilter extends ExtractorFilter{
   def extract(tweet: String): List[Term] = {
     List.empty[Term]
   }
