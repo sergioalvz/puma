@@ -16,8 +16,9 @@ object Analyzer {
   def analyze(local: String, global: String): Map[Term, Double] = {
     val results = mutable.Map.empty[Term, Double]
     val stats = new GTest()
-
     val extractor = new Extractor()
+    val commonFrequencies = mutable.Map.empty[Int, Int]
+    val notDefinedAtGlobal = mutable.Map.empty[Term, Int]
     
     extractor.filter = new HashtagFilter(new MentionFilter(new SimpleTermExtractorFilter()))
     extractor.path = local
@@ -25,8 +26,6 @@ object Analyzer {
     
     extractor.path = global
     val globalTerms = extractor.extract
-
-    val notDefinedAtGlobal = mutable.Map.empty[Term, Int]
 
     localTerms.keys.foreach(term => {
       val globalCountOption = globalTerms.get(term)
@@ -42,19 +41,26 @@ object Analyzer {
 
     if(!notDefinedAtGlobal.isEmpty) {
       notDefinedAtGlobal.keys.foreach(term => {
-        val termsWithSameFrequency = localTerms.keys.filter((localTerm) => {
-          globalTerms.get(localTerm).isDefined && localTerms.get(localTerm).get == notDefinedAtGlobal.get(term).get
-        })
-
-        if(termsWithSameFrequency.size > 0){
-          var avg = 0
-          termsWithSameFrequency.foreach(term => {
-            avg += globalTerms.get(term).get
+        var avgFrequencyAtGlobal: Int = 0
+        if(commonFrequencies.get(localTerms.get(term).get).isDefined){
+          avgFrequencyAtGlobal = commonFrequencies.get(localTerms.get(term).get).get
+        }else{
+          val termsWithSameFrequency = localTerms.keys.filter((localTerm) => {
+            globalTerms.get(localTerm).isDefined &&
+              localTerms.get(localTerm).get == notDefinedAtGlobal.get(term).get
           })
-          avg /= termsWithSameFrequency.size
-
+          var avg = 0
+          if(!termsWithSameFrequency.isEmpty) {
+            termsWithSameFrequency.foreach(term => {
+              avg += globalTerms.get(term).get
+            })
+            avg /= termsWithSameFrequency.size
+          }
+          commonFrequencies.put(localTerms.get(term).get, avg)
+        }
+        if(avgFrequencyAtGlobal > 0) {
           val observed = Int.int2long(notDefinedAtGlobal.get(term).get)
-          val expected = Int.int2long(avg)
+          val expected = Int.int2long(avgFrequencyAtGlobal)
           val llr = stats.gDataSetsComparison(Array(observed, observed), Array(expected, expected))
           results.put(term, llr)
         }

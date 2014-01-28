@@ -17,7 +17,7 @@ class MentionFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
   def extract(tweet: String): List[Term] = {
     val mentions = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
     extractor.extractMentionedScreennames(tweet).asScala.foreach(term => {
-      mentions += new Term(List(term))
+      mentions += new Term(List(term.toLowerCase))
     })
     mentions.toList
   }

@@ -17,7 +17,7 @@ class HashtagFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
   def extract(tweet: String): List[Term] = {
     val hashtags = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
     extractor.extractHashtags(tweet).asScala.foreach(term => {
-      hashtags += new Term(List(term))
+      hashtags += new Term(List(term.toLowerCase))
     })
     hashtags.toList
   }

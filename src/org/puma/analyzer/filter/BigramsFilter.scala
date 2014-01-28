@@ -20,7 +20,7 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
     val extractedBigrams = ngram(clear(tweet.trim), 2)
     extractedBigrams.foreach(bigram => {
       if (isValidBigram(bigram)) {
-        bigrams += new Term(List(bigram(0), bigram(1)))
+        bigrams += new Term(List(bigram(0).toLowerCase, bigram(1).toLowerCase))
       }
     })
     bigrams.toList
