@@ -18,5 +18,8 @@ I'll be working on adding **sbt** ASAP. But, at the moment, the following *.jar 
 + commons-math3-3.2.jar
 + scalatest_2.10-2.0.jar
 + twitter-text-1.6.1-jar
++ log4j-api-2.0-beta9.jar
++ log4j-core-2.0-beta9.jar
++ scalalogging-log4j_2.10-1.0.1.jar
 
 **[EXPECTED COMPLETION BY JULY 2014]**
