@@ -25,18 +25,21 @@ class Extractor extends Logging{
 
   private[this] val MaximumExtractedTerms = 500000 // 500,000
 
+  def path(value: String): Extractor = {
+    _path = value
+    this
+  }
 
-  def path = _path
-  def filter = _filter
-
-  def path_= (value: String): Unit = _path = value
-  def filter_= (value: ExtractorFilter): Unit = _filter = value
+  def filter(value: ExtractorFilter): Extractor = {
+    _filter = value
+    this
+  }
 
   def extract: Map[Term, Int] = {
     if(_filter == null || _path == null)
       throw new IllegalArgumentException("You must provide a filter and valid path for making the extraction")
 
-    logger.debug(s"Extracting: $path with filter: $filter")
+    logger.debug(s"Extracting: ${_path} with filter: ${_filter}")
 
     results.clear()       // clearing previous
     minimumFrequency = 1  // extraction

@@ -25,10 +25,9 @@ object Main {
     val files = ConfigurationUtil.getFilesToAnalyze
     if(files.size == 2) {
       try{
-        val mostValuedTerms = Analyzer.analyze(files(0), files(1))
-        mostValuedTerms.keys.foreach(term => {
-          if(mostValuedTerms.get(term).get < 0.0) println(term + " -> " + mostValuedTerms.get(term).get)
-        })
+        val analyzer = new Analyzer(files(0), files(1))
+        val mostValuedTerms = analyzer.analyze
+        mostValuedTerms.foreach( pair => { if(pair._2 != 0.0) println(pair._1 + " -> " + pair._2) } )
       }catch {
         case ex: FileNotFoundException => Console.err.println("ERROR: The file does not exist. " + ex.getMessage)
       }
