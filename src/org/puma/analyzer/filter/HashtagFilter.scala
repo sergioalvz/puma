@@ -12,6 +12,8 @@ import scala.collection.mutable.ListBuffer
  * Date: 01/2014
  */
 class HashtagFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(filter){
+  def this() = this(new SimpleTermExtractorFilter())
+
   private[this] val extractor = new com.twitter.Extractor
 
   def extract(tweet: String): List[Term] = {

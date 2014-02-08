@@ -13,7 +13,7 @@ import org.puma.configuration.ConfigurationUtil
  */
 object Main {
   def main(args: Array[String]): Unit = {
-      run()
+    run()
   }
 
   private[this] def run() {
@@ -24,7 +24,10 @@ object Main {
     try{
       val files = ConfigurationUtil.getFilesToAnalyze
       if(files.size == 2) {
-        val analyzer = new Analyzer(files(0), files(1))
+        val local  = files(0)
+        val global = files(1)
+
+        val analyzer = new Analyzer(local, global)
         val mostValuedTerms = analyzer.analyze
         println(mostValuedTerms.mkString("\n"))
       }else {

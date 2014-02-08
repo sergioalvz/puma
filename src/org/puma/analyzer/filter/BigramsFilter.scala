@@ -11,6 +11,8 @@ import scala.collection.mutable.ListBuffer
  * Date: 01/2014
  */
 class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(filter) {
+  def this() = this(new SimpleTermExtractorFilter())
+
   private[this] val SymbolsToClean = Array("\\", ",", "(", "\'", ")", "{", "}", "?", "¿", "¡", "!", ".", "&", "%",
     "$", ";", ":", "+", "-", "*", "^", "/", "_", "\n", "\t")
 

@@ -8,6 +8,7 @@ import scala.collection.mutable
 import org.puma.model.Term
 import org.puma.analyzer.filter.ExtractorFilter
 import com.typesafe.scalalogging.log4j.Logging
+import org.puma.configuration.ConfigurationUtil
 
 /**
  * Project: puma
@@ -20,10 +21,11 @@ class Extractor extends Logging{
   private[this] var _path: String = null
   private[this] var _filter: ExtractorFilter = null
 
-  private[this] var results = mutable.Map.empty[Term, Int]
-  private[this] var minimumFrequency = 1
+  private[this] var results     = mutable.Map.empty[Term, Int]
+  private[this] var minimumFreq = 1
 
-  private[this] val MaximumExtractedTerms = 500000 // 500,000
+  private[this] val MaximumExtractedTerms = ConfigurationUtil.getMaximumExtractedTerms
+  private[this] val FactorToRemove        = ConfigurationUtil.getFactorToRemove
 
   def path(value: String): Extractor = {
     _path = value
@@ -40,11 +42,6 @@ class Extractor extends Logging{
       throw new IllegalArgumentException("You must provide a filter and valid path for making the extraction")
 
     logger.debug(s"Extracting: ${_path} with filter: ${_filter}")
-
-    results.clear()       // clearing previous
-    minimumFrequency = 1  // extraction
-    logger.debug(s"Clearing results. Results has currently ${results.size} elements. Minimum Frequency is " +
-      s"$minimumFrequency")
 
     val reader = new XMLEventReader(Source.fromFile(_path))
     var isTweetTextNode = false
@@ -66,7 +63,7 @@ class Extractor extends Logging{
       if(results.contains(term)){
         results(term) += 1
       }else{
-        results(term) = minimumFrequency
+        results(term) = minimumFreq
       }
     })
   }
@@ -79,12 +76,12 @@ class Extractor extends Logging{
   }
 
   private[this] def reduceMapLoad() = {
-    val itemsToRemove = (results.keys.size * 0.4).toInt
+    val itemsToRemove = (results.keys.size * FactorToRemove).toInt
     logger.debug(s"They are going to be removed $itemsToRemove items")
     
     val orderedList = results.toList.sortBy({_._2})
-    minimumFrequency = orderedList(itemsToRemove - 1)._2
-    logger.debug(s"New minimum frequency is $minimumFrequency")
+    minimumFreq = orderedList(itemsToRemove - 1)._2
+    logger.debug(s"New minimum frequency is $minimumFreq")
 
     val reduced = orderedList.slice(itemsToRemove - 1, orderedList.size)
     results = collection.mutable.Map(reduced.toMap[Term, Int].toSeq: _*) // converting to mutable map
