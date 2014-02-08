@@ -2,6 +2,7 @@ package org.puma.configuration
 
 import scala.collection.mutable.ListBuffer
 import java.util.Properties
+import scala.io.Source
 
 /**
  * Project: puma
@@ -16,12 +17,10 @@ object ConfigurationUtil {
 
   def getFilesToAnalyze: List[String] = {
     val files = new ListBuffer[String]
-
     val properties = new Properties()
-    properties.load(ConfigurationUtil.getClass.getResourceAsStream("/configuration.properties"))
 
+    properties.load(Source.fromFile("configuration.properties").bufferedReader())
     properties.getProperty(FilesPropertyKey).split(";").foreach( file => files += file )
-
     files.toList
   }
 }

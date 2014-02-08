@@ -3,7 +3,7 @@ package org.puma.analyzer
 import scala.collection.mutable
 import org.apache.commons.math3.stat.inference.GTest
 import org.puma.model.Term
-import org.puma.analyzer.filter.{BigramsFilter, SimpleTermExtractorFilter}
+import org.puma.analyzer.filter.{MentionFilter, BigramsFilter, SimpleTermExtractorFilter, HashtagFilter}
 
 /**
  * Project: puma
@@ -24,12 +24,12 @@ class Analyzer(local: String, global: String) {
   def analyze: List[(Term, Double)] = {
 
     localTerms = new Extractor()
-      .filter(new BigramsFilter(new SimpleTermExtractorFilter()))
+      .filter(new HashtagFilter(new SimpleTermExtractorFilter()))
       .path(local)
       .extract
 
     globalTerms = new Extractor()
-      .filter(new BigramsFilter(new SimpleTermExtractorFilter()))
+      .filter(new HashtagFilter(new SimpleTermExtractorFilter()))
       .path(global)
       .extract
 
@@ -40,7 +40,7 @@ class Analyzer(local: String, global: String) {
       val localFrequency = localTerms.get(term).get.toLong
       var globalFrequency:Long = 0
 
-      if(localFrequency > 1000) {
+      if(localFrequency > 500) {
         val globalCountOption = globalTerms.get(term)
         if(globalCountOption.isDefined)
           globalFrequency = globalCountOption.get.toLong
@@ -61,21 +61,15 @@ class Analyzer(local: String, global: String) {
     if(commonFrequencies.get(localTerms.get(term).get).isDefined){
       return commonFrequencies.get(localTerms.get(term).get).get
     }
-
-    val termsWithSameFrequency = localTerms.keys.filter((localTerm) => {
+    val termsWithSameFrequency = localTerms.filterKeys((localTerm) => {
       globalTerms.get(localTerm).isDefined &&
         localTerms.get(localTerm).get == localTerms.get(term).get
     })
-
     var avg = 0
-    if(!termsWithSameFrequency.isEmpty) {
-      termsWithSameFrequency.foreach(term => {
-        avg += globalTerms.get(term).get
-      })
-      avg /= termsWithSameFrequency.size
+    if(!termsWithSameFrequency.isEmpty){
+      avg = termsWithSameFrequency.foldLeft(0)(_+_._2) / termsWithSameFrequency.size
     }
     commonFrequencies.put(localTerms.get(term).get, avg)
-
     avg
   }
 }
