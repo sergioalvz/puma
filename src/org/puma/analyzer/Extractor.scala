@@ -21,9 +21,8 @@ class Extractor extends Logging{
   private[this] var _path: String = null
   private[this] var _filter: ExtractorFilter = null
 
-  private[this] var results     = mutable.Map.empty[Term, Int]
-  private[this] var minimumFreq = 1
-
+  private[this] var results               = mutable.Map.empty[Term, Int]
+  private[this] var minimumFreq           = 1
   private[this] val MaximumExtractedTerms = ConfigurationUtil.getMaximumExtractedTerms
   private[this] val FactorToRemove        = ConfigurationUtil.getFactorToRemove
 

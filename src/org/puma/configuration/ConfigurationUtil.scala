@@ -23,6 +23,7 @@ object ConfigurationUtil {
 
   private[this] val PropertiesFileName          = "configuration.properties"
   private[this] val FilesToAnalyzeDirectoryName = "files_to_analyze"
+  private[this] val OutputFilesDirectoryName    = "results"
 
   def getFilesToAnalyze: List[String] = {
     val files = new ListBuffer[String]
@@ -64,4 +65,6 @@ object ConfigurationUtil {
     properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
     properties.getProperty(FactorToRemoveKey).toFloat
   }
+
+  def getOutputFilesDirAbsolutePath: String = getExecutableAbsolutePath + OutputFilesDirectoryName + "/"
 }

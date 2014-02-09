@@ -15,7 +15,7 @@ import org.puma.configuration.ConfigurationUtil
  */
 class Analyzer(local: String, global: String) {
 
-  private[this] val localTerms  = new Extractor() .filter(ConfigurationUtil.getFilterToApply).path(local).extract
+  private[this] val localTerms  = new Extractor().filter(ConfigurationUtil.getFilterToApply).path(local).extract
   private[this] val globalTerms = new Extractor().filter(ConfigurationUtil.getFilterToApply).path(global).extract
 
   private[this] val totalLocalFrequencies  = localTerms.foldLeft(0)(_+_._2)

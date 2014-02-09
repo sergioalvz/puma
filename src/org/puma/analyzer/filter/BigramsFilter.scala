@@ -13,13 +13,13 @@ import scala.collection.mutable.ListBuffer
 class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(filter) {
   def this() = this(new SimpleTermExtractorFilter())
 
-  private[this] val SymbolsToClean = Array("\\", ",", "(", "\'", ")", "{", "}", "?", "¿", "¡", "!", ".", "&", "%",
-    "$", ";", ":", "+", "-", "*", "^", "/", "_", "\n", "\t")
+  private[this] val SymbolsToClean = Array('\\', ',', '(', '\'', ')', '{', '}', '?', '¿', '¡', '!', '.', '&', '%',
+    '$', ';', ':', '+', '-', '*', '^', '/', '_', '\n', '\t', '=')
 
   def extract(tweet: String): List[Term] = {
     val bigrams = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
 
-    val extractedBigrams = ngram(clear(tweet.trim), 2)
+    val extractedBigrams = ngram(clean(tweet.trim), 2)
     extractedBigrams.foreach(bigram => {
       if (isValidBigram(bigram)) {
         bigrams += new Term(List(bigram(0).toLowerCase, bigram(1).toLowerCase))
@@ -34,12 +34,8 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
       !(bigram(1).startsWith("@") || bigram(1).startsWith("#"))
   }
 
-  private[this] def clear(raw: String): String = {
-    var replaced = raw
-    for (symbol <- SymbolsToClean) {
-      replaced = replaced.replace(symbol, "")
-    }
-    replaced
+  private[this] def clean(raw: String): String = {
+    raw.map[Char, String](char => if(SymbolsToClean.contains(char)) '\0' else char)
   }
 
   /*
