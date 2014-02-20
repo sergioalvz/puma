@@ -15,11 +15,7 @@ class Term(t: List[String]) {
     obj match {
       case term: Term => {
         if(this.terms.size != term.terms.size) return false
-
-        this.terms.foreach(aTerm => {
-          if(!term.terms.contains(aTerm)) return false
-        })
-
+        this.terms.foreach(aTerm => { if(!term.terms.contains(aTerm)) return false })
         true
       }
       case _ => false

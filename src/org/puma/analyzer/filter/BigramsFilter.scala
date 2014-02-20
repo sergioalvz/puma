@@ -22,7 +22,7 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
     val extractedBigrams = getBigrams(clear(tweet.toLowerCase.trim))
     extractedBigrams.foreach(bigram => {
       if (isValidBigram(bigram)) {
-        val termToAdd = new Term(List(bigram(0), bigram(1)))
+        val termToAdd = new Term(List(bigram(0).trim, bigram(1).trim))
         if(!bigrams.contains(termToAdd)) bigrams += termToAdd
       }
     })
@@ -33,8 +33,11 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
     bigram.size == 2 &&
     !bigram(0).trim.isEmpty &&
     !bigram(1).trim.isEmpty &&
+    (bigram(0).trim.length > 1 && bigram(1).trim.length > 1) &&
     !(bigram(0).startsWith("@") || bigram(0).startsWith("#")) &&
-    !(bigram(1).startsWith("@") || bigram(1).startsWith("#"))
+    !(bigram(1).startsWith("@") || bigram(1).startsWith("#")) &&
+    !ConfigurationUtil.stopWords.contains(bigram(0).trim) &&
+    !ConfigurationUtil.stopWords.contains(bigram(1).trim)
   }
 
   private[this] def clear(raw: String): String = {
@@ -43,9 +46,6 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
 
   private[this] def getBigrams(tweet: String): List[Array[String]] = {
     val words = tweet.split(" ")
-    val combinations = words.combinations(2).toList
-    combinations.filter(terms => {
-      !ConfigurationUtil.stopWords.contains(terms(0)) && !ConfigurationUtil.stopWords.contains(terms(1))
-    }) // Removing those bigrams only composed by stop words
+    words.combinations(2).toList
   }
 }
