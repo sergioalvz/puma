@@ -34,6 +34,7 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
     !bigram(0).trim.isEmpty &&
     !bigram(1).trim.isEmpty &&
     (bigram(0).trim.length > 1 && bigram(1).trim.length > 1) &&
+    (bigram(0).trim.matches("[a-záéíóú]*") && bigram(1).trim.matches("[a-záéíóú]*")) &&
     !(bigram(0).startsWith("@") || bigram(0).startsWith("#")) &&
     !(bigram(1).startsWith("@") || bigram(1).startsWith("#")) &&
     !ConfigurationUtil.stopWords.contains(bigram(0).trim) &&
