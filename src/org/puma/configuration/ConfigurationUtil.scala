@@ -20,10 +20,13 @@ object ConfigurationUtil {
   private[this] val MinFrequencyForLLRKey       = "min_frequency_llr"
   private[this] val MaximumExtractedTermsKey    = "maximum_extracted_terms"
   private[this] val FactorToRemoveKey           = "factor_to_remove"
+  private[this] val StopWordsFilePropertyKey    = "stop_words_file"
 
   private[this] val PropertiesFileName          = "configuration.properties"
   private[this] val FilesToAnalyzeDirectoryName = "files_to_analyze"
   private[this] val OutputFilesDirectoryName    = "results"
+
+  private[this] val stopWordsList = Source.fromFile(stopWordsFile).getLines().toArray
 
   def getFilesToAnalyze: List[String] = {
     val files = new ListBuffer[String]
@@ -67,4 +70,11 @@ object ConfigurationUtil {
   }
 
   def getOutputFilesDirAbsolutePath: String = getExecutableAbsolutePath + OutputFilesDirectoryName + "/"
+
+  def stopWords: Array[String] = stopWordsList
+  private[this] def stopWordsFile: String = {
+    val properties = new Properties()
+    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
+    properties.getProperty(StopWordsFilePropertyKey)
+  }
 }

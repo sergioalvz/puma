@@ -5,7 +5,7 @@ import java.io._
 import org.puma.configuration.ConfigurationUtil
 import org.puma.model.Term
 import scala.Console
-import java.util.{Calendar, Date}
+import java.util.Calendar
 import java.text.SimpleDateFormat
 
 /**
@@ -48,12 +48,13 @@ object Main {
     dir.mkdirs()
 
     val title = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance.getTime)
-    val file = new File(s"${dir.getAbsolutePath}/$title.tsv")
+    val filterName = ConfigurationUtil.getFilterToApply.getClass.getSimpleName
+    val file = new File(s"${dir.getAbsolutePath}/${title}_$filterName.tsv")
     if(!file.exists) file.createNewFile
 
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))
     try{
-      terms.foreach(t => writer.write(s"${t._1}\t${t._2}\n"))
+      terms.foreach(t => writer.write(s"${t._2}\t${t._1}\n"))
     }finally{
       writer.flush()
       writer.close()

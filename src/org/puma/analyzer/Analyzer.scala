@@ -1,10 +1,10 @@
 package org.puma.analyzer
 
 import scala.collection.mutable
-import org.apache.commons.math3.stat.inference.GTest
 import org.puma.model.Term
-import org.puma.analyzer.filter.{MentionFilter, BigramsFilter, SimpleTermExtractorFilter, HashtagFilter}
 import org.puma.configuration.ConfigurationUtil
+import org.puma.stat.Dunning
+import com.typesafe.scalalogging.log4j.Logging
 
 /**
  * Project: puma
@@ -21,7 +21,6 @@ class Analyzer(local: String, global: String) {
   private[this] val totalLocalFrequencies  = localTerms.foldLeft(0)(_+_._2)
   private[this] val totalGlobalFrequencies = globalTerms.foldLeft(0)(_+_._2)
 
-  private[this] val stats               = new GTest()
   private[this] val results             = mutable.Map.empty[Term, Double]
   private[this] val commonFreq          = mutable.Map.empty[Int, Int]
   private[this] val minFrequencyLLR     = ConfigurationUtil.getMinFrequencyForLLR
@@ -33,10 +32,14 @@ class Analyzer(local: String, global: String) {
         val globalOption = globalTerms.get(term)
         val globalFreq:Long = if (globalOption.isDefined) globalOption.get else calculateAverageGlobalFrequency(term)
 
-        val k11 = globalFreq + localFreq
-        val k22 = (totalLocalFrequencies + totalGlobalFrequencies) - k11
-        val llr = stats.rootLogLikelihoodRatio(k11, globalFreq, localFreq, k22)
-        results.put(term, llr)
+        if(globalFreq > 0) {
+          val k11 = localFreq
+          val k12 = globalFreq
+          val k21 = totalLocalFrequencies
+          val k22 = totalGlobalFrequencies
+          val llr = Dunning.rootLogLikelihoodRatio(k11, k12, k21, k22)
+          results.put(term, llr)
+        }
       }
     })
     results.toList.sortBy({ _._2 })
