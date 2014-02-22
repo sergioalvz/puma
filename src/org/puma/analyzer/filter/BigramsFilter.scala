@@ -30,15 +30,16 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
   }
 
   private[this] def isValidBigram(bigram: Array[String]): Boolean = {
-    bigram.size == 2 &&
-    !bigram(0).trim.isEmpty &&
-    !bigram(1).trim.isEmpty &&
-    (bigram(0).trim.length > 1 && bigram(1).trim.length > 1) &&
-    (bigram(0).trim.matches("[a-záéíóú]*") && bigram(1).trim.matches("[a-záéíóú]*")) &&
-    !(bigram(0).startsWith("@") || bigram(0).startsWith("#")) &&
-    !(bigram(1).startsWith("@") || bigram(1).startsWith("#")) &&
-    !ConfigurationUtil.stopWords.contains(bigram(0).trim) &&
-    !ConfigurationUtil.stopWords.contains(bigram(1).trim)
+    bigram.size == 2 && // just 2 words for bigram
+    !bigram(0).trim.isEmpty && // bigram not emtpy
+    !bigram(1).trim.isEmpty && // bigram not empty
+    (bigram(0).trim.length > 1 && bigram(1).trim.length > 1) && // rejecting 'a a' 't t' etc...
+    (bigram(0).trim.matches("[a-záéíóú]*") && bigram(1).trim.matches("[a-záéíóú]*")) && // just for filtering...
+    bigram(0).trim != bigram(1).trim && // rejecting bigrams composed by the same words 'day day' 'to to' etc...
+    !(bigram(0).startsWith("@") || bigram(0).startsWith("#")) && // rejecting mentions and hashtags
+    !(bigram(1).startsWith("@") || bigram(1).startsWith("#")) && // rejecting mentions and hashtags
+    !ConfigurationUtil.stopWords.contains(bigram(0).trim) && // rejecting bigrams with stopwords
+    !ConfigurationUtil.stopWords.contains(bigram(1).trim) // rejecting bigrams with stopwords
   }
 
   private[this] def clear(raw: String): String = {

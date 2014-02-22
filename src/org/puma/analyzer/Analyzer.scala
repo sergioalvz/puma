@@ -37,7 +37,7 @@ class Analyzer(local: String, global: String) {
           val k12 = globalFreq
           val k21 = totalLocalFrequencies
           val k22 = totalGlobalFrequencies
-          val llr = Dunning.rootLogLikelihoodRatio(k11, k12, k21, k22)
+          val llr = Dunning.normalizedRootLogLikelihoodRatio(k11, k12, k21, k22)
           results.put(term, llr)
         }
       }

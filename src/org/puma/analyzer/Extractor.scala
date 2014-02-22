@@ -40,7 +40,7 @@ class Extractor extends Logging{
     if(_filter == null || _path == null)
       throw new IllegalArgumentException("You must provide a filter and valid path for making the extraction")
 
-    logger.debug(s"Extracting: ${_path} with filter: ${_filter}")
+    logger.debug(s"Extracting: ${_path} with filter: ${_filter.getClass.getSimpleName}")
 
     val reader = new XMLEventReader(Source.fromFile(_path))
     var isTweetTextNode = false
