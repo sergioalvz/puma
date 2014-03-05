@@ -1,6 +1,5 @@
 package org.puma.analyzer.filter
 
-import org.puma.model.Term
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
@@ -16,10 +15,10 @@ class MentionFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
 
   private[this] val extractor = new com.twitter.Extractor
 
-  def extract(tweet: String): List[Term] = {
+  def extract(tweet: String): List[List[String]] = {
     val mentions = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
     extractor.extractMentionedScreennames(tweet).asScala.foreach(term => {
-      mentions += new Term(List(term.toLowerCase))
+      mentions += List(term.toLowerCase)
     })
     mentions.toList
   }

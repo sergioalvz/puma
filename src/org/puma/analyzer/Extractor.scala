@@ -5,7 +5,6 @@ import scala.xml.pull._
 import scala.xml.pull.EvElemStart
 import scala.xml.pull.EvText
 import scala.collection.mutable
-import org.puma.model.Term
 import org.puma.analyzer.filter.ExtractorFilter
 import com.typesafe.scalalogging.log4j.Logging
 import org.puma.configuration.ConfigurationUtil
@@ -21,7 +20,7 @@ class Extractor extends Logging{
   private[this] var _path: String = null
   private[this] var _filter: ExtractorFilter = null
 
-  private[this] var results               = mutable.Map.empty[Term, Int]
+  private[this] var results               = mutable.Map.empty[List[String], Int]
   private[this] var minimumFreq           = 1
   private[this] val MaximumExtractedTerms = ConfigurationUtil.getMaximumExtractedTerms
   private[this] val FactorToRemove        = ConfigurationUtil.getFactorToRemove
@@ -36,7 +35,7 @@ class Extractor extends Logging{
     this
   }
 
-  def extract: Map[Term, Int] = {
+  def extract: Map[List[String], Int] = {
     if(_filter == null || _path == null)
       throw new IllegalArgumentException("You must provide a filter and valid path for making the extraction")
 
@@ -44,14 +43,14 @@ class Extractor extends Logging{
 
     val reader = new XMLEventReader(Source.fromFile(_path))
     var isTweetTextNode = false
-    for (event <- reader) {
+    reader.foreach(event => {
       event match {
         case EvElemStart(_, "text", _, _) => isTweetTextNode = true
         case EvText(text) if isTweetTextNode => applyFilter(text)
         case EvElemEnd(_, "text") => isTweetTextNode = false
         case _ => ;
       }
-    }
+    })
 
     results.toMap
   }
@@ -83,7 +82,7 @@ class Extractor extends Logging{
     logger.debug(s"New minimum frequency is $minimumFreq")
 
     val reduced = orderedList.slice(itemsToRemove - 1, orderedList.size)
-    results = collection.mutable.Map(reduced.toMap[Term, Int].toSeq: _*) // converting to mutable map
+    results = collection.mutable.Map(reduced.toMap[List[String], Int].toSeq: _*) // converting to mutable map
     logger.debug(s"Reduced map contains ${results.keys.size} terms")
   }
 }

@@ -1,6 +1,5 @@
 package org.puma.analyzer.filter
 
-import org.puma.model.Term
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
@@ -16,10 +15,10 @@ class HashtagFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
 
   private[this] val extractor = new com.twitter.Extractor
 
-  def extract(tweet: String): List[Term] = {
+  def extract(tweet: String): List[List[String]] = {
     val hashtags = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
     extractor.extractHashtags(tweet).asScala.foreach(term => {
-      hashtags += new Term(List(term.toLowerCase))
+      hashtags += List(term.toLowerCase)
     })
     hashtags.toList
   }

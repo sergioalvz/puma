@@ -1,6 +1,5 @@
 package org.puma.analyzer.filter
 
-import org.puma.model.Term
 
 /**
  * Project: puma
@@ -10,5 +9,5 @@ import org.puma.model.Term
  * Date: 01/2014
  */
 trait ExtractorFilter {
-  def extract(tweet: String): List[Term]
+  def extract(tweet: String): List[List[String]]
 }

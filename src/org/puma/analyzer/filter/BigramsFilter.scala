@@ -1,6 +1,5 @@
 package org.puma.analyzer.filter
 
-import org.puma.model.Term
 import scala.collection.mutable.ListBuffer
 import org.puma.configuration.ConfigurationUtil
 
@@ -17,12 +16,12 @@ class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
   private[this] val SymbolsToClean = Array('\\', ',', '(', '\'', ')', '{', '}', '?', '¿', '¡', '!', '.', '&', '%',
     '$', ';', ':', '+', '-', '*', '^', '/', '_', '\n', '\t', '=')
 
-  def extract(tweet: String): List[Term] = {
+  def extract(tweet: String): List[List[String]] = {
     val bigrams = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
     val extractedBigrams = getBigrams(clear(tweet.toLowerCase.trim))
     extractedBigrams.foreach(bigram => {
       if (isValidBigram(bigram)) {
-        val termToAdd = new Term(List(bigram(0).trim, bigram(1).trim))
+        val termToAdd = List(bigram(0).trim, bigram(1).trim).sortWith(_ < _)
         if(!bigrams.contains(termToAdd)) bigrams += termToAdd
       }
     })

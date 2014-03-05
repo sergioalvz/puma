@@ -1,7 +1,5 @@
 package org.puma.analyzer.filter
 
-import org.puma.model.Term
-
 /**
  * Project: puma
  * Package: org.puma.analyzer
@@ -10,7 +8,7 @@ import org.puma.model.Term
  * Date: 01/2014
  */
 class SimpleTermExtractorFilter extends ExtractorFilter{
-  def extract(tweet: String): List[Term] = {
-    List.empty[Term]
+  def extract(tweet: String): List[List[String]] = {
+    List.empty[List[String]]
   }
 }

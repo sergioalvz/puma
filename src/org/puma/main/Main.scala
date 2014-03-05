@@ -3,7 +3,6 @@ package org.puma.main
 import org.puma.analyzer.Analyzer
 import java.io._
 import org.puma.configuration.ConfigurationUtil
-import org.puma.model.Term
 import scala.Console
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -43,7 +42,7 @@ object Main {
     }
   }
 
-  private[this] def saveToFile(terms:List[(Term, Double)]): Unit = {
+  private[this] def saveToFile(terms:List[(List[String], Double)]): Unit = {
     val dir  = new File(ConfigurationUtil.getOutputFilesDirAbsolutePath)
     dir.mkdirs()
 
@@ -54,7 +53,7 @@ object Main {
 
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))
     try{
-      terms.foreach(t => writer.write(s"${t._2}\t${t._1}\n"))
+      terms.foreach(t => writer.write(s"${t._2}\t${t._1.mkString(" ")}\n"))
     }finally{
       writer.flush()
       writer.close()
