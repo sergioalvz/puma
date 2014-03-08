@@ -11,4 +11,6 @@ class SimpleTermExtractorFilter extends ExtractorFilter{
   def extract(tweet: String): List[List[String]] = {
     List.empty[List[String]]
   }
+
+  def field:String = "text"
 }

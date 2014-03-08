@@ -12,11 +12,11 @@ import scala.collection.mutable.ListBuffer
  */
 object NgramExtractor {
   private[this] val SymbolsToClean = Array('\\', ',', '(', '\'', ')', '{', '}', '?', '¿', '¡', '!', '.', '&', '%',
-    '$', ';', ':', '+', '-', '*', '^', '/', '_', '\n', '\t', '=')
+    '$', ';', ':', '+', '-', '*', '^', '/', '_', '\n', '\t', '=', '|')
 
   def extract(tweet: String, count: Int): List[List[String]] = {
     var result = new ListBuffer[List[String]]
-    val ngrams = getNgrams(clear(tweet.toLowerCase.trim), count)
+    val ngrams = getNgrams(clear(tweet), count)
     ngrams.foreach(ngram => {
       if (isValidNgram(ngram, count)) {
         val termToAdd = ngram.map(ngram => ngram.trim).toList
@@ -31,13 +31,13 @@ object NgramExtractor {
     ngram.find(term => term.trim.isEmpty) == None &&
     ngram.find(term => term.trim.length == 1) == None &&
     ngram.find(term => !term.trim.matches("[a-záéíóú]*")) == None &&
-    !ngram.forall(term => term.trim == ngram(0).trim) &&
+    !ngram.forall(term => if(count > 1) term.trim == ngram(0).trim else false) &&
     ngram.find(term => term.startsWith("@") || term.startsWith("#")) == None &&
     ngram.find(term => ConfigurationUtil.stopWords.contains(term.trim)) == None
   }
 
   private[this] def clear(raw: String): String = {
-    raw.map[Char, String](char => if(SymbolsToClean.contains(char)) '\0' else char)
+    raw.toLowerCase.trim.map[Char, String](char => if(SymbolsToClean.contains(char)) '\0' else char)
   }
 
   private[this] def getNgrams(tweet: String, count: Int): List[Array[String]] = {

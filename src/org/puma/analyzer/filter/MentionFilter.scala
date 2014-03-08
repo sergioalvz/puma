@@ -23,4 +23,5 @@ class MentionFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
     mentions.toList
   }
 
+  def field: String = "text"
 }

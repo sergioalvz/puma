@@ -10,4 +10,5 @@ package org.puma.analyzer.filter
  */
 trait ExtractorFilter {
   def extract(tweet: String): List[List[String]]
+  def field: String
 }

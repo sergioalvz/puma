@@ -18,4 +18,6 @@ class KeywordFilter (filter: ExtractorFilter) extends ExtractorFilterDecorator(f
     NgramExtractor.extract(tweet, 1).foreach(ngram => results += ngram)
     results.toList
   }
+
+  def field: String = "text"
 }

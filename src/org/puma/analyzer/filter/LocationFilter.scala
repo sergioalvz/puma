@@ -5,19 +5,19 @@ import org.puma.analyzer.NgramExtractor
 
 /**
  * Project: puma
- * Package: org.puma.analyzer
+ * Package: org.puma.analyzer.filter
  *
  * Author: Sergio Álvarez
- * Date: 01/2014
+ * Date: 03/2014
  */
-class BigramsFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(filter) {
+class LocationFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(filter) {
   def this() = this(new SimpleTermExtractorFilter())
 
   def extract(tweet: String): List[List[String]] = {
     val results = filter.extract(tweet).to[ListBuffer] // initializing with previous extraction
-    NgramExtractor.extract(tweet, 2).foreach(ngram => results += ngram)
+    NgramExtractor.extract(tweet, 1).foreach(ngram => results += ngram)
     results.toList
   }
 
-  def field: String = "text"
+  def field: String = "location"
 }

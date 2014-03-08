@@ -5,7 +5,7 @@ import scala.xml.pull._
 import scala.xml.pull.EvElemStart
 import scala.xml.pull.EvText
 import scala.collection.mutable
-import org.puma.analyzer.filter.ExtractorFilter
+import org.puma.analyzer.filter.{LocationFilter, ExtractorFilter}
 import com.typesafe.scalalogging.log4j.Logging
 import org.puma.configuration.ConfigurationUtil
 
@@ -36,22 +36,22 @@ class Extractor extends Logging{
   }
 
   def extract: Map[List[String], Int] = {
-    if(_filter == null || _path == null)
+    if(_filter == null || _path == null){
       throw new IllegalArgumentException("You must provide a filter and valid path for making the extraction")
+    }
 
     logger.debug(s"Extracting: ${_path} with filter: ${_filter.getClass.getSimpleName}")
 
     val reader = new XMLEventReader(Source.fromFile(_path))
-    var isTweetTextNode = false
+    var in = false
     reader.foreach(event => {
       event match {
-        case EvElemStart(_, "text", _, _) => isTweetTextNode = true
-        case EvText(text) if isTweetTextNode => applyFilter(text)
-        case EvElemEnd(_, "text") => isTweetTextNode = false
+        case e: EvElemStart if e.label == _filter.field => in = true
+        case EvText(text) if in => applyFilter(text)
+        case e: EvElemEnd if e.label == _filter.field => in = false
         case _ => ;
       }
     })
-
     results.toMap
   }
 

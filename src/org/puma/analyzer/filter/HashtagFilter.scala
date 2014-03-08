@@ -22,4 +22,6 @@ class HashtagFilter(filter: ExtractorFilter) extends ExtractorFilterDecorator(fi
     })
     hashtags.toList
   }
+
+  def field: String = "text"
 }
