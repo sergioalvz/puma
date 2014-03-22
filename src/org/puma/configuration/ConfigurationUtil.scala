@@ -1,9 +1,10 @@
 package org.puma.configuration
 
 import scala.collection.mutable.ListBuffer
-import java.util.Properties
 import scala.io.Source
 import org.puma.analyzer.filter.ExtractorFilter
+import scala.xml.{Elem, XML}
+import java.io.{BufferedReader, File}
 
 /**
  * Project: puma
@@ -14,28 +15,63 @@ import org.puma.analyzer.filter.ExtractorFilter
  */
 object ConfigurationUtil {
 
+  /* ===========================================================
+   *                     CONSTANTS
+   * =========================================================== */
   private[this] val LocalFilePropertyKey        = "local"
   private[this] val GlobalFilePropertyKey       = "global"
   private[this] val FilterPropertyKey           = "filter"
-  private[this] val MinFrequencyForLLRKey       = "min_frequency_llr"
-  private[this] val MaximumExtractedTermsKey    = "maximum_extracted_terms"
-  private[this] val FactorToRemoveKey           = "factor_to_remove"
-  private[this] val StopWordsFilePropertyKey    = "stop_words_file"
+  private[this] val MinFrequencyForLLRKey       = "minimumFrequency"
+  private[this] val MaximumExtractedTermsKey    = "maximumExtractedTerms"
+  private[this] val FactorToRemoveKey           = "factorToRemove"
+  private[this] val FilePropertyKey             = "file"
+  private[this] val FileToAnalyzePropertyKey    = "fileToAnalyze"
 
-  private[this] val PropertiesFileName          = "configuration.properties"
+  private[this] val LLRGeneratorKey             = "llrGenerator"
+  private[this] val ScoreGeneratorKey           = "scoreGenerator"
+  private[this] val LLRFilesPropertyKey         = "llrFiles"
+
+
+  private[this] val StopWordsFileName           = "common-stop-words.txt"
+
+  private[this] val ConfigurationFileName       = "configuration.xml"
   private[this] val FilesToAnalyzeDirectoryName = "files_to_analyze"
   private[this] val OutputFilesDirectoryName    = "results"
+  private[this] val ResourcesDirectoryName      = "resources"
+  /* =========================================================== */
 
-  private[this] val stopWordsList = Source.fromFile(stopWordsFile).getLines().toArray
+
+
+  /* ===========================================================
+   *                 LOAD STOP WORDS
+   * =========================================================== */
+  private[this] val stopWordsList = Source.fromInputStream(getStopWordsFileStream).getLines().toArray
+  private[this] def getStopWordsFileStream = {
+    ConfigurationUtil.getClass.getResourceAsStream(s"/$ResourcesDirectoryName/$StopWordsFileName")
+  }
+  /* =========================================================== */
+
+
+  /* ===========================================================
+   *                 LOAD CONFIGURATION XML
+   * =========================================================== */
+  private[this] val configuration: Elem = loadConfiguration
+
+  private[this] def loadConfiguration = XML.load(getConfigurationFile)
+
+  private[this] def getConfigurationFile: BufferedReader = {
+    val custom = new File(s"$getExecutableAbsolutePath$ConfigurationFileName")
+    Source.fromFile(custom).bufferedReader()
+  }
+  /* =========================================================== */
+
+
+  def getMode: String = (configuration \\ "mode").text
 
   def getFilesToAnalyze: List[String] = {
-    val files = new ListBuffer[String]
-    val properties = new Properties()
-
-    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
-    files += getFilesToAnalyzeAbsolutePath + properties.getProperty(LocalFilePropertyKey)
-    files += getFilesToAnalyzeAbsolutePath + properties.getProperty(GlobalFilePropertyKey)
-    files.toList
+    val local  = getFilesToAnalyzeAbsolutePath + (configuration \\ LLRGeneratorKey \\ LocalFilePropertyKey).text
+    val global = getFilesToAnalyzeAbsolutePath + (configuration \\ LLRGeneratorKey \\ GlobalFilePropertyKey).text
+    List(local, global)
   }
 
   def getExecutableAbsolutePath: String = {
@@ -43,38 +79,28 @@ object ConfigurationUtil {
     absolutePath.substring(0, absolutePath.lastIndexOf('/') + 1)
   }
 
-  def getFilesToAnalyzeAbsolutePath: String =  getExecutableAbsolutePath + FilesToAnalyzeDirectoryName + "/"
+  def getFilesToAnalyzeAbsolutePath: String = s"$getExecutableAbsolutePath$FilesToAnalyzeDirectoryName/"
 
   def getFilterToApply: ExtractorFilter = {
-    val properties = new Properties()
-    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
-    Class.forName(properties.getProperty(FilterPropertyKey)).newInstance.asInstanceOf[ExtractorFilter]
+    val klass = (configuration \\ LLRGeneratorKey \\ FilterPropertyKey).text
+    Class.forName(klass).newInstance.asInstanceOf[ExtractorFilter]
   }
 
-  def getMinFrequencyForLLR: Int = {
-    val properties = new Properties()
-    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
-    properties.getProperty(MinFrequencyForLLRKey).toInt
-  }
+  def getMinFrequencyForLLR: Int = (configuration \\ LLRGeneratorKey \\ MinFrequencyForLLRKey).text.toInt
 
-  def getMaximumExtractedTerms: Int = {
-    val properties = new Properties()
-    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
-    properties.getProperty(MaximumExtractedTermsKey).toInt
-  }
+  def getMaximumExtractedTerms: Int = (configuration \\ LLRGeneratorKey \\ MaximumExtractedTermsKey).text.toInt
 
-  def getFactorToRemove: Float = {
-    val properties = new Properties()
-    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
-    properties.getProperty(FactorToRemoveKey).toFloat
-  }
+  def getFactorToRemove: Float = (configuration \\ LLRGeneratorKey \\ FactorToRemoveKey).text.toFloat
 
-  def getOutputFilesDirAbsolutePath: String = getExecutableAbsolutePath + OutputFilesDirectoryName + "/"
+  def getOutputFilesDirAbsolutePath: String = s"$getExecutableAbsolutePath$OutputFilesDirectoryName/"
 
   def stopWords: Array[String] = stopWordsList
-  private[this] def stopWordsFile: String = {
-    val properties = new Properties()
-    properties.load(Source.fromFile(getExecutableAbsolutePath + PropertiesFileName).bufferedReader())
-    properties.getProperty(StopWordsFilePropertyKey)
+
+  def getLLRResultFiles: Array[String] = {
+    var files = new ListBuffer[String]
+    (configuration \\ ScoreGeneratorKey \\ LLRFilesPropertyKey \\ FilePropertyKey).foreach(node => files += node.text)
+    files.toArray[String]
   }
+
+  def getFileToAnalyze: String = (configuration \\ ScoreGeneratorKey \\ FileToAnalyzePropertyKey).text
 }

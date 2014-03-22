@@ -5,7 +5,7 @@ import scala.xml.pull._
 import scala.xml.pull.EvElemStart
 import scala.xml.pull.EvText
 import scala.collection.mutable
-import org.puma.analyzer.filter.{LocationFilter, ExtractorFilter}
+import org.puma.analyzer.filter.ExtractorFilter
 import com.typesafe.scalalogging.log4j.Logging
 import org.puma.configuration.ConfigurationUtil
 
