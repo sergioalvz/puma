@@ -44,13 +44,11 @@ class Extractor extends Logging{
 
     val reader = new XMLEventReader(Source.fromFile(_path))
     var in = false
-    reader.foreach(event => {
-      event match {
+    reader.foreach({
         case e: EvElemStart if e.label == _filter.field => in = true
         case EvText(text) if in => applyFilter(text)
         case e: EvElemEnd if e.label == _filter.field => in = false
         case _ => ;
-      }
     })
     results.toMap
   }
