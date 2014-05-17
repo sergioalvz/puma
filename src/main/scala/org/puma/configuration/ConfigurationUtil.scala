@@ -20,6 +20,7 @@ object ConfigurationUtil {
    * =========================================================== */
   private[this] val LocalFilePropertyKey         = "local"
   private[this] val GlobalFilePropertyKey        = "global"
+  private[this] val FiltersPropertyKey           = "filters"
   private[this] val FilterPropertyKey            = "filter"
   private[this] val MinFrequencyForLLRKey        = "minimumFrequency"
   private[this] val MaximumExtractedTermsKey     = "maximumExtractedTerms"
@@ -38,7 +39,6 @@ object ConfigurationUtil {
   private[this] val ConfigurationFileName        = "configuration.xml"
   private[this] val FilesToAnalyzeDirectoryName  = "files_to_analyze"
   private[this] val OutputFilesDirectoryName     = "results"
-  private[this] val ResourcesDirectoryName       = "resources"
   /* =========================================================== */
 
 
@@ -49,15 +49,13 @@ object ConfigurationUtil {
 
   def getFilesToAnalyzeDirAbsolutePath:String = s"$getExecutableAbsolutePath$FilesToAnalyzeDirectoryName/"
   def getOutputFilesDirAbsolutePath:String    = s"$getExecutableAbsolutePath$OutputFilesDirectoryName/"
-  def getResourcesDirAbsolutePath:String      = s"$getExecutableAbsolutePath$ResourcesDirectoryName/"
-
 
   /* ===========================================================
    *                 LOAD STOP WORDS
    * =========================================================== */
   private[this] val stopWordsList = Source.fromInputStream(getStopWordsFileStream).getLines().toArray
   private[this] def getStopWordsFileStream = {
-    ConfigurationUtil.getClass.getResourceAsStream(s"/$ResourcesDirectoryName/$StopWordsFileName")
+    ConfigurationUtil.getClass.getResourceAsStream(s"/$StopWordsFileName")
   }
   /* =========================================================== */
 
@@ -84,10 +82,9 @@ object ConfigurationUtil {
     List(local, global)
   }
 
-  def getFilterToApply: ExtractorFilter = {
-    val klass = (configuration \\ LLRGeneratorKey \\ FilterPropertyKey).text
-    Class.forName(klass).newInstance.asInstanceOf[ExtractorFilter]
-  }
+  def getFiltersToApply: Seq[ExtractorFilter] =
+    (configuration \\ LLRGeneratorKey \\ FiltersPropertyKey \\ FilterPropertyKey).map(n =>
+      Class.forName(n.text).newInstance.asInstanceOf[ExtractorFilter])
 
   def getMinFrequencyForLLR: Int = (configuration \\ LLRGeneratorKey \\ MinFrequencyForLLRKey).text.toInt
 

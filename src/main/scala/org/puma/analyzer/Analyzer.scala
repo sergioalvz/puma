@@ -3,6 +3,7 @@ package org.puma.analyzer
 import scala.collection.mutable
 import org.puma.configuration.ConfigurationUtil
 import org.puma.stat.Dunning
+import org.puma.analyzer.filter.ExtractorFilter
 
 /**
  * Project: puma
@@ -11,10 +12,9 @@ import org.puma.stat.Dunning
  * Author: Sergio Álvarez
  * Date: 01/2014
  */
-class Analyzer(local: String, global: String) {
-
-  private[this] val localTerms  = new Extractor().filter(ConfigurationUtil.getFilterToApply).path(local).extract
-  private[this] val globalTerms = new Extractor().filter(ConfigurationUtil.getFilterToApply).path(global).extract
+class Analyzer(local: String, global: String, filter: ExtractorFilter) {
+  private[this] val localTerms  = new Extractor().filter(filter).path(local).extract
+  private[this] val globalTerms = new Extractor().filter(filter).path(global).extract
 
   private[this] val totalLocalFrequencies  = localTerms.foldLeft(0)(_+_._2)
   private[this] val totalGlobalFrequencies = globalTerms.foldLeft(0)(_+_._2)
@@ -26,7 +26,7 @@ class Analyzer(local: String, global: String) {
   def analyze: List[(List[String], Double)] = {
     localTerms.keys.foreach(terms => {
       val localFreq = localTerms.get(terms).get.toLong
-      if(localFreq > minFrequencyLLR) {        
+      if(localFreq > minFrequencyLLR) {
         val globalOption = globalTerms.get(terms)
         val globalFreq:Long = if (globalOption.isDefined) globalOption.get else calculateAverageGlobalFrequency(terms)
 

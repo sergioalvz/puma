@@ -6,7 +6,7 @@ import scala.xml.pull.EvElemStart
 import scala.xml.pull.EvText
 import scala.collection.mutable
 import org.puma.analyzer.filter.ExtractorFilter
-import com.typesafe.scalalogging.log4j.Logging
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.puma.configuration.ConfigurationUtil
 
 /**
@@ -16,7 +16,7 @@ import org.puma.configuration.ConfigurationUtil
  * Author: Sergio Álvarez
  * Date: 09/2013
  */
-class Extractor extends Logging{
+class Extractor extends LazyLogging{
   private[this] var _path: String = null
   private[this] var _filter: ExtractorFilter = null
 
@@ -40,7 +40,7 @@ class Extractor extends Logging{
       throw new IllegalArgumentException("You must provide a filter and valid path for making the extraction")
     }
 
-    // logger.debug("Extracting: " + _path + " with filter: " + _filter.getClass.getSimpleName)
+    logger.debug("Extracting: " + _path + " with filter: " + _filter.getClass.getSimpleName)
 
     val reader = new XMLEventReader(Source.fromFile(_path))
     var in = false
@@ -66,21 +66,21 @@ class Extractor extends Logging{
 
   private[this] def checkMemoryStatus() = {
     if(results.keys.size >= MaximumExtractedTerms) {
-      // logger.debug("Memory overload. Maximum limit for extracted terms have been reached. Reducing map...")
+      logger.debug("Memory overload. Maximum limit for extracted terms have been reached. Reducing map...")
       reduceMapLoad()
     }
   }
 
   private[this] def reduceMapLoad() = {
     val itemsToRemove = (results.keys.size * FactorToRemove).toInt
-    // logger.debug("They are going to be removed " + itemsToRemove + " items")
+    logger.debug("They are going to be removed " + itemsToRemove + " items")
 
     val orderedList = results.toList.sortBy({_._2})
     minimumFreq = orderedList(itemsToRemove - 1)._2
-    // logger.debug("New minimum frequency is " + minimumFreq)
+    logger.debug("New minimum frequency is " + minimumFreq)
 
     val reduced = orderedList.slice(itemsToRemove - 1, orderedList.size)
     results = collection.mutable.Map(reduced.toMap[List[String], Int].toSeq: _*) // converting to mutable map
-    // logger.debug("Reduced map contains " + results.keys.size + " terms")
+    logger.debug("Reduced map contains " + results.keys.size + " terms")
   }
 }

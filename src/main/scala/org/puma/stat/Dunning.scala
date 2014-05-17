@@ -1,7 +1,5 @@
 package org.puma.stat
 
-import com.typesafe.scalalogging.log4j.Logging
-
 /**
  * Project: puma
  * Package: org.puma.stat

@@ -125,7 +125,7 @@ class ScoreGenerator extends Generator{
   }
 
   private[this] def getBoundingBoxes: List[List[(Double, Double)]] = {
-    val root = XML.loadFile(ConfigurationUtil.getResourcesDirAbsolutePath + ConfigurationUtil.getBoundingBoxesFile)
+    val root = XML.loadFile(ConfigurationUtil.getBoundingBoxesFile)
     var boundingBoxes = new ListBuffer[List[(Double, Double)]]
     (root \\ "boundingBox").foreach(b => {
       val sw_long = (b \ "sw" \ "longitude").text

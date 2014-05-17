@@ -2,6 +2,6 @@ import AssemblyKeys._
 
 assemblySettings
 
-jarName in assembly := "puma.jar"
-
 mainClass in assembly := Some("org.puma.main.Main")
+
+outputPath in assembly := new java.io.File("./out/puma.jar")

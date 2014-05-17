@@ -2,6 +2,7 @@ package org.puma.generator
 
 import org.puma.configuration.ConfigurationUtil
 import org.puma.analyzer.Analyzer
+import org.puma.analyzer.filter.ExtractorFilter
 import java.io._
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -22,9 +23,11 @@ class LLRGenerator extends Generator {
         val local  = files(0)
         val global = files(1)
 
-        val analyzer = new Analyzer(local, global)
-        val mostValuedTerms = analyzer.analyze
-        saveToFile(mostValuedTerms)
+        ConfigurationUtil.getFiltersToApply.foreach(f => {
+          val analyzer = new Analyzer(local, global, f)
+          val mostValuedTerms = analyzer.analyze
+          saveToFile(mostValuedTerms, f)
+        })
       }else {
         println("ERROR: Must there exactly two files for analyzing. Please, review the \"configuration.properties\" file.")
       }
@@ -33,12 +36,12 @@ class LLRGenerator extends Generator {
     }
   }
 
-  private[this] def saveToFile(terms:List[(List[String], Double)]): Unit = {
+  private[this] def saveToFile(terms:List[(List[String], Double)], filter: ExtractorFilter): Unit = {
     val dir  = new File(ConfigurationUtil.getOutputFilesDirAbsolutePath)
     dir.mkdirs()
 
     val title = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance.getTime)
-    val filterName = ConfigurationUtil.getFilterToApply.getClass.getSimpleName
+    val filterName = filter.getClass.getSimpleName
     val file = new File(s"${dir.getAbsolutePath}/${title}_$filterName.tsv")
     if(!file.exists) file.createNewFile
 
