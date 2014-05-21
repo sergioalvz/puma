@@ -29,7 +29,7 @@ class ScoreGenerator extends Generator{
     val location, text, latitude, longitude, username = new mutable.StringBuilder()
     var insideLocation, insideText, insideLatitude, insideLongitude, insideUsername = false
 
-    val reader = new XMLEventReader(Source.fromFile(ConfigurationUtil.getFilesToAnalyzeDirAbsolutePath + fileToAnalyze))
+    val reader = new XMLEventReader(Source.fromFile(fileToAnalyze))
     reader.foreach({
         case EvElemStart(_, "username", _, _)  => insideUsername = true
         case EvElemEnd(_, "username")          => insideUsername = false
@@ -91,14 +91,11 @@ class ScoreGenerator extends Generator{
   }
 
   private[this] def saveScore(score:Double, username:String, location:String, latitude:String, longitude:String, text:String) = {
-    val dir  = new File(ConfigurationUtil.getOutputFilesDirAbsolutePath)
-    dir.mkdirs()
-
-    val file = new File(dir.getAbsolutePath + "/" + s"${fileToAnalyze}_scores.tsv")
+    val file = new File(s"${fileToAnalyze}_scores.tsv")
     if(!file.exists) file.createNewFile
 
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)))
-    val line = score + "\t" + latitude.trim + "\t" + longitude.trim + "\t" + format(username, location, text) + "\n"
+    val line = score + "\t" + latitude.trim + "\t" + longitude.trim + "\t" + normalize(username, location, text) + "\n"
     try{
       writer.write(line)
     }finally{
@@ -107,7 +104,7 @@ class ScoreGenerator extends Generator{
     }
   }
 
-  private[this] def format(username:String, location:String, text:String): String = {
+  private[this] def normalize(username:String, location:String, text:String): String = {
     val normalized = NgramExtractor.extract(location.trim + " " + text.trim(), 1, allowMentionsAndHashtags = true).flatten.mkString(" ")
     "@" + username.toLowerCase.trim + " " + normalized
   }
@@ -115,7 +112,7 @@ class ScoreGenerator extends Generator{
   private[this] def getScores: Map[String, Double] = {
     val scores = mutable.Map.empty[String, Double]
     resultFiles.foreach(file => {
-      val lines = Source.fromFile(ConfigurationUtil.getOutputFilesDirAbsolutePath + file).getLines().toArray
+      val lines = Source.fromFile(file).getLines().toArray
       lines.foreach(line => {
        val fields = line.split("\t")
        scores(fields(1)) = fields(0).toDouble

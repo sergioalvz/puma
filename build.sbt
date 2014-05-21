@@ -10,7 +10,8 @@ libraryDependencies ++= List(
   "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.0-rc1",
   "com.twitter" % "twitter-text" % "1.6.1",
   "org.apache.logging.log4j" % "log4j-api" % "2.0-rc1",
-  "org.apache.logging.log4j" % "log4j-core" % "2.0-rc1"
+  "org.apache.logging.log4j" % "log4j-core" % "2.0-rc1",
+  "com.github.scopt" %% "scopt" % "3.2.0"
 )
 
 scalacOptions ++= Seq("-unchecked", "-deprecation")

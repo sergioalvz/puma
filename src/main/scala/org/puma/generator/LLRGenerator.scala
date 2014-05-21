@@ -18,31 +18,25 @@ import scala.Console
 class LLRGenerator extends Generator {
   def generate(): Unit = {
     try{
-      val files = ConfigurationUtil.getFilesToAnalyze
-      if(files.size == 2) {
-        val local  = files(0)
-        val global = files(1)
+      val files  = ConfigurationUtil.getFilesToAnalyze
+      val local  = files(0)
+      val global = files(1)
 
-        ConfigurationUtil.getFiltersToApply.foreach(f => {
-          val analyzer = new Analyzer(local, global, f)
-          val mostValuedTerms = analyzer.analyze
-          saveToFile(mostValuedTerms, f)
-        })
-      }else {
-        println("ERROR: Must there exactly two files for analyzing. Please, review the \"configuration.properties\" file.")
-      }
+      ConfigurationUtil.getFiltersToApply.foreach(f => {
+        val analyzer = new Analyzer(local, global, f)
+        val mostValuedTerms = analyzer.analyze
+        saveToFile(mostValuedTerms, f)
+      })
     }catch {
       case ex: FileNotFoundException => Console.err.println("ERROR: The file does not exist. " + ex.getMessage)
     }
   }
 
   private[this] def saveToFile(terms:List[(List[String], Double)], filter: ExtractorFilter): Unit = {
-    val dir  = new File(ConfigurationUtil.getOutputFilesDirAbsolutePath)
-    dir.mkdirs()
-
     val title = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance.getTime)
     val filterName = filter.getClass.getSimpleName
-    val file = new File(s"${dir.getAbsolutePath}/${title}_$filterName.tsv")
+
+    val file = new File(s"${title}_$filterName.tsv")
     if(!file.exists) file.createNewFile
 
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))
