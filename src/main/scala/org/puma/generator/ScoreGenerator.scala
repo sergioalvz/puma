@@ -139,7 +139,7 @@ class ScoreGenerator extends Generator{
     boundingBoxes.exists(boundingBox => {
       val sw = boundingBox(0)
       val ne = boundingBox(1)
-      sw._1 <= lng.toDouble && ne._1 >= lng.toDouble && sw._2 <= lat.toDouble && ne._2 >= lat.toDouble
+      sw._1 <= lat.toDouble && ne._1 >= lat.toDouble && sw._2 <= lng.toDouble && ne._2 >= lng.toDouble
     })
   }
 }
