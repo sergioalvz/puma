@@ -78,8 +78,8 @@ class ScoreGenerator extends Generator{
     val terms = locationKeywords ++ mentionsHashtags ++ bigrams ++ keywords
 
     val score = terms.foldLeft(0.0)((acc, current) => acc + scoreByTerm(current.mkString(" ")))
-    if(isValidScore(score, longitude, latitude)){
-      saveScore(score, username, location, longitude, latitude, text)
+    if(isValidScore(score, latitude, longitude)){
+      saveScore(score, username, location, latitude, longitude, text)
     }
   }
 
@@ -130,7 +130,7 @@ class ScoreGenerator extends Generator{
       val ne_long = (b \ "ne" \ "longitude").text
       val ne_lat = (b \ "ne" \ "latitude").text
 
-      boundingBoxes += List((sw_long.toDouble, sw_lat.toDouble), (ne_long.toDouble, ne_lat.toDouble))
+      boundingBoxes += List((sw_lat.toDouble, sw_long.toDouble), (ne_lat.toDouble, ne_long.toDouble))
     })
     boundingBoxes.toList
   }
